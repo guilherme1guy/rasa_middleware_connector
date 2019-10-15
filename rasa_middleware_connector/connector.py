@@ -22,7 +22,7 @@ class MiddlewareConnector:
     def __get_on_new_message(self):
         raise NotImplementedError
 
-    def create_user_message(self, **kwargs) -> UserMessage:
+    def create_user_message(self, *args, **kwargs) -> UserMessage:
         raise NotImplementedError
 
     def setup_middlewares(self):
@@ -48,12 +48,12 @@ class MiddlewareConnector:
 
        await self.used_middlewares[0].compute(message)
 
-    async def handle_message(self, **kwargs):
+    async def handle_message(self, *args, **kwargs):
 
         if not self.__ready:
             self.setup_middlewares()
 
-        message = self.create_user_message(**kwargs)
+        message = self.create_user_message(*args, **kwargs)
         await self.proccess_message(message)
 
     
