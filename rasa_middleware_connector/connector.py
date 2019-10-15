@@ -14,12 +14,12 @@ class MiddlewareConnector:
     on_new_message = None
     used_middlewares = []
 
-    __ready = False
+    middleware_is_ready = False
 
-    def __get_middlewares(self):
+    def get_middlewares(self):
         raise NotImplementedError
 
-    def __get_on_new_message(self):
+    def get_on_new_message(self):
         raise NotImplementedError
 
     def create_user_message(self, *args, **kwargs) -> UserMessage:
@@ -28,7 +28,7 @@ class MiddlewareConnector:
     def setup_middlewares(self):
         
         last = None
-        for middleware in self.__get_middlewares():
+        for middleware in self.get_middlewares():
             
             if last is not None:
                 middleware.set_next(last)
@@ -38,11 +38,11 @@ class MiddlewareConnector:
 
 
         if len(self.used_middlewares) > 0:
-            last.set_next(self.__get_on_new_message())
+            last.set_next(self.get_on_new_message())
         else:
-            self.used_middlewares = [self.__get_on_new_message(), ]
+            self.used_middlewares = [self.get_on_new_message(), ]
     
-        self.__ready = True
+        self.middleware_is_ready = True
 
     async def proccess_message(self, message):
 
@@ -50,7 +50,7 @@ class MiddlewareConnector:
 
     async def handle_message(self, *args, **kwargs):
 
-        if not self.__ready:
+        if not self.middleware_is_ready:
             self.setup_middlewares()
 
         message = self.create_user_message(*args, **kwargs)
