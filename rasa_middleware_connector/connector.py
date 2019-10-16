@@ -31,7 +31,7 @@ class MiddlewareConnector:
         for middleware in self.get_middlewares():
             
             if last is not None:
-                last.set_next(middleware)
+                last.set_next(middleware.compute)
 
             last = middleware
             self.used_middlewares.append(middleware)
