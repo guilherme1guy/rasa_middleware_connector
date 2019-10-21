@@ -1,5 +1,5 @@
 from rasa.core.channels.channel import UserMessage
-from typing import Callable
+from typing import Callable, Text, Any, Dict
 
 class BaseMiddleware:
 
@@ -26,9 +26,9 @@ class BaseMiddleware:
         """
 
         if self.is_output:
-            self.output_compute(*args)
+            await self.output_compute(*args)
         else:
-            self.input_compute(*args)
+            await self.input_compute(*args)
 
     async def input_compute(self, message: UserMessage):
 

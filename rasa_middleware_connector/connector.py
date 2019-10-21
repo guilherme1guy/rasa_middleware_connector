@@ -5,7 +5,7 @@ import time
 import re
 
 from rasa.core.channels.channel import UserMessage
-from typing import List, Callable
+from typing import List, Callable, Text, Dict, Any
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +18,10 @@ class MiddleWareConnector:
     
     used_middlewares = []
     middleware_is_ready = False
+
+    INPUT_CONNECTOR_TYPE = 0
+    OUTPUT_CONNECTOR_TYPE = 1
+
 
     def _get_connector_type(self):
         """
@@ -47,7 +51,7 @@ class MiddleWareConnector:
         be send directly to Rasa.
         """
 
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def setup_middlewares(self):
         """
@@ -56,8 +60,7 @@ class MiddleWareConnector:
         the order of the list. Appens the default Rasa path to the end 
         of the middleware list. 
         """
-
-        is_output = True if self._get_connector_type() == 'OUTPUT' else False
+        is_output = self._get_connector_type() == self.OUTPUT_CONNECTOR_TYPE
         
         last = None
         for middleware in self.get_middlewares():
@@ -94,7 +97,7 @@ class InputMiddlewareConnector(MiddleWareConnector):
     """
 
     def _get_connector_type(self):
-        return 'INPUT'
+        return self.INPUT_CONNECTOR_TYPE
 
     def _get_default_path(self):
         return self.get_on_new_message()
@@ -108,14 +111,14 @@ class InputMiddlewareConnector(MiddleWareConnector):
         It will be used to send the message to Rasa after all middlewares finish.
         """
 
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def create_user_message(self, *args, **kwargs) -> UserMessage:
         """
         Returns a UserMessage object containing the text to be processed.
         """
         
-        raise NotImplementedError
+        raise NotImplementedError()
 
     async def handle_message(self, *args, **kwargs):
         """
@@ -136,12 +139,12 @@ class InputMiddlewareConnector(MiddleWareConnector):
 class OutputMiddlewareConnector(MiddleWareConnector):
 
     def _get_connector_type(self):
-        return 'OUTPUT'
+        return self.OUTPUT_CONNECTOR_TYPE
 
     def _get_default_path(self):
-        return self.get_connector_class().send_response
+        return self.send_to_rasa
 
-    def get_connector_class(self):
+    def get_connector_class(self) -> type:
 
         """
         This method should return the class from where 'send_response' should
@@ -151,6 +154,14 @@ class OutputMiddlewareConnector(MiddleWareConnector):
         raise NotImplementedError()
 
     async def send_response(self, recipient_id: Text, message: Dict[Text, Any]) -> None:
+
+        if not self.middleware_is_ready:
+            self.setup_middlewares()
         
         await self.proccess_message(recipient_id, message)
 
+    async def send_to_rasa(self, recipient_id: Text, message: Dict[Text, Any]):
+               
+        connector_class = self.get_connector_class()
+
+        await super(connector_class, self).send_response(recipient_id, message)
