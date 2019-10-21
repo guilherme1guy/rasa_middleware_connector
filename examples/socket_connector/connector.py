@@ -4,13 +4,13 @@ import asyncio
 from rasa.core.channels.channel import UserMessage
 from rasa.core.channels.socketio import SocketIOInput, SocketIOOutput
 
-from rasa_middleware_connector import MiddlewareConnector
+from rasa_middleware_connector import InputMiddlewareConnector, OutputMiddlewareConnector
 from .custom_middlewares.message_collector import MessageCollector
 from .custom_middlewares.text_cleaner import TextCleaner
 
 logger = logging.getLogger(__name__)
 
-class SocketInput(SocketIOInput, MiddlewareConnector):
+class SocketInput(SocketIOInput, InputMiddlewareConnector):
 
     """A socket.io input channel with middleware support."""
 

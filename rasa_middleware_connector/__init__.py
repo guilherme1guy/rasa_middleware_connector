@@ -1,2 +1,2 @@
-from rasa_middleware_connector.connector import MiddlewareConnector
+from rasa_middleware_connector.connector import InputMiddlewareConnector, OutputMiddlewareConnector
 from rasa_middleware_connector.middleware import BaseMiddleware

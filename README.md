@@ -12,10 +12,10 @@ When you set up a default message preprocessor by passing it as a callable argum
 
 ## Usage
 
-### Connector
-The class `MiddlewareConnector` is an abstract class that you should inherit from, together with the desired connector.
+### Input Connector
+The class `InputMiddlewareConnector` is an abstract class that you should inherit from, together with the desired connector.
 ```
-class SocketInput(SocketIOInput, MiddlewareConnector):
+class SocketInput(SocketIOInput, InputMiddlewareConnector):
 ```
 
 You need to implement the methods: `get_middlewares`, `get_on_new_message` and `create_user_message`. And change the connector `handle_message` route to point to the `self.handle_message`. All the following examples are extracts from a custom connector based on the `SocketIOInput`:
@@ -83,18 +83,46 @@ def create_user_message(self, sid, data) -> UserMessage:
     return message
 ```
 
+### Output Connector
+
+An output middleware connector is very similar to the input one. You should override `get_middlewares` just like on the input. 
+
+One caveat is that OutputMiddlewareConnector should be the first on the inheritance order. Also, there is the need to provide the connector class on `get_connector_class`:
+
+```
+class SocketOutput(OutputMiddlewareConnector, SocketIOOutput):
+...
+    def get_connector_class(self):
+        return SocketIOOutput
+```
+
 ### Middlewares
 
-Your middlewares should have two methods: `set_next(self, next)` and `compute(self, message: UserMessage)` and the `next` attribute. They are available on the class `BaseMiddleware`. `compute` should be asynchronous.
+Your middlewares should respect the interface defined in the class `BaseMiddleware`: 
+* `set_next(self, next, is_output)`
+* `compute(self, message: UserMessage)`
+* *`input_compute(self, message: UserMessage)`*
+* *`output_compute(self, recipient_id: Text, message: Dict[Text, Any])`*
+* Attributes: `next`, `is_output`
+
+Note the at least `input_compute` or `output_compute` should be implemented. If you will only use the middleware as an input middleware you can only implement `input_compute`, and if its an only output middleware only `output_compute` needs to be implemented.
 
 `set_next`: sets where your middleware should send the message after you are done processing it.
 
-`compute(self, message: UserMessage)`: starts the processing of your message. After processing the message you should call `await self.next(message)`.
+`compute(self, message: UserMessage)`: starts the processing of your message. Sends it to the appropriate function (`input_compute` or `output_compute`).
+
+`input_compute` or `output_compute`: message processing. After processing the message you should call:
+* `await self.next(message)` if input
+* `await self.next(recipient_id, message)` if output
+
+Example:
 ```
-async def compute(self, message: UserMessage):
+async def input_compute(self, message: UserMessage):
 
     logger.info("Middleware TextCleaner received message from {}".format(message.sender_id))
     
     message.text = self.clean_message(message.text)
     await self.next(message)
+
+# output_compute not implemented since this is an input only middleware
 ```

@@ -22,7 +22,7 @@ class MessageCollector(BaseMiddleware):
         self.handlers = {}
         self.connector = connector
         
-    async def compute(self, message: UserMessage):
+    async def input_compute(self, message: UserMessage):
 
         logger.info("Middleware MessageCollector received message from {}".format(message.sender_id))
                 
