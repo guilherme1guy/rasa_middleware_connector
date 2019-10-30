@@ -15,13 +15,15 @@ class MiddleWareConnector:
     """
     Base class for the Input and Output middleware connectors
     """
-    
-    used_middlewares = []
-    middleware_is_ready = False
 
     INPUT_CONNECTOR_TYPE = 0
     OUTPUT_CONNECTOR_TYPE = 1
 
+    def __init__(self, *args, **kwargs):
+        self.used_middlewares = []
+        self.middleware_is_ready = False
+
+        super().__init__(*args, **kwargs)
 
     def _get_connector_type(self):
         """

@@ -13,9 +13,9 @@ When you set up a default message preprocessor by passing it as a callable argum
 ## Usage
 
 ### Input Connector
-The class `InputMiddlewareConnector` is an abstract class that you should inherit from, together with the desired connector.
+The class `InputMiddlewareConnector` is an abstract class that you should inherit from, together with the desired connector. It should be the first class.
 ```
-class SocketInput(SocketIOInput, InputMiddlewareConnector):
+class SocketInput(InputMiddlewareConnector, SocketIOInput):
 ```
 
 You need to implement the methods: `get_middlewares`, `get_on_new_message` and `create_user_message`. And change the connector `handle_message` route to point to the `self.handle_message`. All the following examples are extracts from a custom connector based on the `SocketIOInput`:

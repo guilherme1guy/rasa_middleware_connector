@@ -7,8 +7,9 @@ class BaseMiddleware:
     Interface for Middlewares
     """
 
-    next = None
-    is_output = False
+    def __init__(self, *args, **kwargs):
+        self.next = None
+        self.is_output = False
 
     def set_next(self, next: Callable[[UserMessage], None], is_output):
 
