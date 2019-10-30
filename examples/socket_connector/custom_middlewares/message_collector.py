@@ -84,15 +84,18 @@ class MessageHandler:
         
         self.timer = AsyncTimer(self.DELAY, self.commit)
 
+    def clean_ponctuation(self, text: str):
+
+        return text.replace('.', '').replace(',', '').replace('!', '').replace('?', '')
+
     async def append_message(self, user_message: UserMessage):
         
         async with self.mutex:
             if self.accepting is False:
                 raise HandlerClosedException()
 
-            full_text = user_message.text
-            text_parts = await self.preprocess_text(full_text)
-            
+            user_message.text = self.clean_ponctuation(user_message.text)
+
             self.messages.append(user_message)
             self.__reset_timer()
             
