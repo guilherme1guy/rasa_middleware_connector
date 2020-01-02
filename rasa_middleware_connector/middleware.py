@@ -51,3 +51,18 @@ class BaseMiddleware:
         """
 
         raise NotImplementedError()
+
+
+class RasaDefaultPathMiddleware(BaseMiddleware):
+
+    def __init__(self, endpoint):
+
+        self.endpoint = endpoint
+
+    async def input_compute(self, message):
+
+        await self.endpoint(message)
+
+    async def output_compute(self, recipient_id, message):
+
+        await self.endpoint(message)

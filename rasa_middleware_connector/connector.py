@@ -7,6 +7,8 @@ import re
 from rasa.core.channels.channel import UserMessage
 from typing import List, Callable, Text, Dict, Any
 
+from .middleware import RasaDefaultPathMiddleware
+
 logger = logging.getLogger(__name__)
 
 
@@ -74,10 +76,12 @@ class MiddleWareConnector:
             self.used_middlewares.append(middleware)
 
 
+        defualt_path_middleware = RasaDefaultPathMiddleware(self._get_default_path())
+
         if len(self.used_middlewares) > 0:
-            last.set_next(self._get_default_path(), is_output)
+            last.set_next(defualt_path_middleware, is_output)
         else:
-            self.used_middlewares = [self._get_default_path(), ]
+            self.used_middlewares = [defualt_path_middleware, ]
     
         self.middleware_is_ready = True
 

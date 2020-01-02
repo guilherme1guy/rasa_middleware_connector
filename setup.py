@@ -8,7 +8,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 setup(
   name = 'rasa_middleware_connector',         # How you named your package folder (MyLib)
   packages = ['rasa_middleware_connector'],   # Chose the same as "name"
-  version = '0.2.0',      # Start with a small number and increase it with every change you make
+  version = '0.2.1',      # Start with a small number and increase it with every change you make
   license='MIT',        # Chose a license from here: https://help.github.com/articles/licensing-a-repository
   description = 'Adds middleware support for rasa connectors',   # Give a short description about your library
   long_description=long_description,
